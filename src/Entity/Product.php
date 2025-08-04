@@ -32,6 +32,18 @@ class Product
     #[ORM\Column]
     private ?bool $avalaible = null;
 
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: CartItem::class)]
+private Collection $cartItems;
+
+#[ORM\OneToMany(mappedBy: 'product', targetEntity: Rating::class)]
+private Collection $ratings;
+
+public function __construct()
+{
+    $this->cartItems = new ArrayCollection();
+    $this->ratings = new ArrayCollection();
+}
+
     public function getId(): ?int
     {
         return $this->id;
