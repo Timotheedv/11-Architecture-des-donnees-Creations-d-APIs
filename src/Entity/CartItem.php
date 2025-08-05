@@ -24,6 +24,14 @@ class CartItem
     #[ORM\JoinColumn(nullable: false)]
     private ?Cart $cart = null;
 
+    #[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+    ]
+)]
+
     public function getId(): ?int
     {
         return $this->id;

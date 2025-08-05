@@ -38,6 +38,14 @@ private Collection $cartItems;
 #[ORM\OneToMany(mappedBy: 'product', targetEntity: Rating::class)]
 private Collection $ratings;
 
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+    ]
+)]
+
 public function __construct()
 {
     $this->cartItems = new ArrayCollection();
