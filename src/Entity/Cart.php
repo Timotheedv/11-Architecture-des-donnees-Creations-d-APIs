@@ -28,6 +28,14 @@ class Cart
     #[ORM\OneToMany(mappedBy: 'cart', targetEntity: CartItem::class, cascade: ['persist', 'remove'])]
     private Collection $cartItems;
 
+    #[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+    ]
+)]
+
     public function __construct()
     {
         $this->cartItems = new ArrayCollection();
