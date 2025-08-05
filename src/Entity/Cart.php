@@ -3,7 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\CartRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\CartItem;
 
 #[ORM\Entity(repositoryClass: CartRepository::class)]
 class Cart
@@ -17,10 +20,19 @@ class Cart
     private ?string $status = null;
 
     #[ORM\Column]
-    private ?\DateTime $createdAt = null;
+    private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTime $validateAt = null;
+    private ?\DateTimeInterface $validatedAt = null;
+
+    #[ORM\OneToMany(mappedBy: 'cart', targetEntity: CartItem::class, cascade: ['persist', 'remove'])]
+    private Collection $cartItems;
+
+    public function __construct()
+    {
+        $this->cartItems = new ArrayCollection();
+        $this->createdAt = new \DateTime();
+    }
 
     public function getId(): ?int
     {
@@ -39,27 +51,58 @@ class Cart
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): static
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getValidateAt(): ?\DateTime
+    public function getValidatedAt(): ?\DateTimeInterface
     {
-        return $this->validateAt;
+        return $this->validatedAt;
     }
 
-    public function setValidateAt(?\DateTime $validateAt): static
+    public function setValidatedAt(?\DateTimeInterface $validatedAt): static
     {
-        $this->validateAt = $validateAt;
+        $this->validatedAt = $validatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CartItem[]
+     */
+    public function getCartItems(): Collection
+    {
+        return $this->cartItems;
+    }
+
+    public function addCartItem(CartItem $cartItem): static
+    {
+        if (!$this->cartItems->contains($cartItem)) {
+            $this->cartItems->add($cartItem);
+            $cartItem->setCart($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCartItem(CartItem $cartItem): static
+    {
+        if ($this->cartItems->removeElement($cartItem)) {
+            // Set the owning side to null (unless already changed)
+            if ($cartItem->getCart() === $this) {
+                $cartItem->setCart(null);
+            }
+        }
 
         return $this;
     }
 }
+?>
