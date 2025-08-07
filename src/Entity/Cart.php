@@ -2,8 +2,6 @@
 
 namespace App\Entity;
 
-
-
 use App\Repository\CartRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,6 +12,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 
 #[ORM\Entity(repositoryClass: CartRepository::class)]
 #[ApiResource(
@@ -21,6 +22,10 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(),
         new GetCollection(),
         new Post(),
+        new Put(),          
+        new Patch(),         
+        new Delete(),  
+        
     ]
 )]
 class Cart
@@ -38,12 +43,12 @@ class Cart
     )]
     private ?string $status = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime')]
     #[Assert\NotNull(message: "La date de création est obligatoire.")]
     #[Assert\DateTime(message: "La date de création doit être une date valide.")]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     #[Assert\DateTime(message: "La date de validation doit être une date valide.")]
     private ?\DateTimeInterface $validatedAt = null;
 
@@ -54,9 +59,10 @@ class Cart
     {
         $this->cartItems = new ArrayCollection();
         $this->createdAt = new \DateTime();
+        $this->status = 'pending';
     }
 
-    // ... getters et setters (inchangés)
+    // Getters / Setters
 
     public function getId(): ?int
     {
@@ -71,6 +77,7 @@ class Cart
     public function setStatus(string $status): static
     {
         $this->status = $status;
+
         return $this;
     }
 
@@ -82,6 +89,7 @@ class Cart
     public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -93,6 +101,7 @@ class Cart
     public function setValidatedAt(?\DateTimeInterface $validatedAt): static
     {
         $this->validatedAt = $validatedAt;
+
         return $this;
     }
 
@@ -110,16 +119,19 @@ class Cart
             $this->cartItems->add($cartItem);
             $cartItem->setCart($this);
         }
+
         return $this;
     }
 
     public function removeCartItem(CartItem $cartItem): static
     {
         if ($this->cartItems->removeElement($cartItem)) {
+            // set the owning side to null (unless already changed)
             if ($cartItem->getCart() === $this) {
                 $cartItem->setCart(null);
             }
         }
+
         return $this;
     }
 }

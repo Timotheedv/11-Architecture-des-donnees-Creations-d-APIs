@@ -12,13 +12,19 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ApiResource(
     operations: [
         new Get(),
         new GetCollection(),
-        new Post(),
+        new Post(), 
+                new Put(),          
+        new Patch(),         
+        new Delete(),  
     ]
 )]
 class Product
@@ -62,12 +68,12 @@ class Product
     #[ORM\Column]
     #[Assert\NotNull(message: "La disponibilité est obligatoire.")]
     #[Assert\Type(type: 'bool', message: "La disponibilité doit être un booléen.")]
-    private ?bool $avalaible = null;
+    private ?bool $available = null;
 
-    #[ORM\OneToMany(mappedBy: 'product', targetEntity: CartItem::class)]
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: CartItem::class, cascade: ['persist', 'remove'])]
     private Collection $cartItems;
 
-    #[ORM\OneToMany(mappedBy: 'product', targetEntity: Rating::class)]
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: Rating::class, cascade: ['persist', 'remove'])]
     private Collection $ratings;
 
     public function __construct()
@@ -76,8 +82,7 @@ class Product
         $this->ratings = new ArrayCollection();
     }
 
-    // ... getters et setters (inchangés)
-    
+
     public function getId(): ?int
     {
         return $this->id;
@@ -91,6 +96,7 @@ class Product
     public function setName(string $name): static
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -102,6 +108,7 @@ class Product
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -113,6 +120,7 @@ class Product
     public function setPrice(float $price): static
     {
         $this->price = $price;
+
         return $this;
     }
 
@@ -124,6 +132,7 @@ class Product
     public function setImage(?string $image): static
     {
         $this->image = $image;
+
         return $this;
     }
 
@@ -135,17 +144,77 @@ class Product
     public function setRating(?float $rating): static
     {
         $this->rating = $rating;
+
         return $this;
     }
 
-    public function isAvalaible(): ?bool
+    public function isAvailable(): ?bool
     {
-        return $this->avalaible;
+        return $this->available;
     }
 
-    public function setAvalaible(bool $avalaible): static
+    public function setAvailable(bool $available): static
     {
-        $this->avalaible = $avalaible;
+        $this->available = $available;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CartItem[]
+     */
+    public function getCartItems(): Collection
+    {
+        return $this->cartItems;
+    }
+
+    public function addCartItem(CartItem $cartItem): static
+    {
+        if (!$this->cartItems->contains($cartItem)) {
+            $this->cartItems->add($cartItem);
+            $cartItem->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCartItem(CartItem $cartItem): static
+    {
+        if ($this->cartItems->removeElement($cartItem)) {
+            if ($cartItem->getProduct() === $this) {
+                $cartItem->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Rating[]
+     */
+    public function getRatings(): Collection
+    {
+        return $this->ratings;
+    }
+
+    public function addRating(Rating $rating): static
+    {
+        if (!$this->ratings->contains($rating)) {
+            $this->ratings->add($rating);
+            $rating->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRating(Rating $rating): static
+    {
+        if ($this->ratings->removeElement($rating)) {
+            if ($rating->getProduct() === $this) {
+                $rating->setProduct(null);
+            }
+        }
+
         return $this;
     }
 }

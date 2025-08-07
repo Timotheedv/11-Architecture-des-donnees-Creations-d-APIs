@@ -46,7 +46,6 @@ class ProductFixtures extends Fixture
                 'image' => 'https://via.placeholder.com/300x200?text=Tarte+aux+pommes',
                 'available' => true
             ],
-            // Ajoutez ici d'autres produits pour arriver jusqu'à 10-15
         ];
 
         foreach ($products as $data) {

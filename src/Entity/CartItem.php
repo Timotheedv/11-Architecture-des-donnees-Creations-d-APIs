@@ -4,8 +4,25 @@ namespace App\Entity;
 
 use App\Repository\CartItemRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 
 #[ORM\Entity(repositoryClass: CartItemRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+         new Put(),          
+        new Patch(),         
+        new Delete(),  
+    ]
+)]
 class CartItem
 {
     #[ORM\Id]
@@ -14,37 +31,30 @@ class CartItem
     private ?int $id = null;
 
     #[ORM\Column]
-    private ?int $score = null;
+    private ?int $quantity = 1;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'cartItems')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Product $product = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Cart::class, inversedBy: 'cartItems')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Cart $cart = null;
 
-    #[ApiResource(
-    operations: [
-        new Get(),
-        new GetCollection(),
-        new Post(),
-    ]
-)]
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getScore(): ?int
+    public function getQuantity(): ?int
     {
-        return $this->score;
+        return $this->quantity;
     }
 
-    public function setScore(int $score): static
+    public function setQuantity(int $quantity): static
     {
-        $this->score = $score;
+        $this->quantity = $quantity;
 
         return $this;
     }

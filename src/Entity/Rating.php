@@ -4,8 +4,26 @@ namespace App\Entity;
 
 use App\Repository\RatingRepository;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 
 #[ORM\Entity(repositoryClass: RatingRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Put(),          
+        new Patch(),         
+        new Delete(),  
+    ]
+)]
 class Rating
 {
     #[ORM\Id]
@@ -14,14 +32,24 @@ class Rating
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: "Le score est obligatoire.")]
+    #[Assert\Range(
+        min: 1,
+        max: 5,
+        notInRangeMessage: "Le score doit être entre {{ min }} et {{ max }}.",
+    )]
     private ?int $score = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'ratings')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Product $product = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $dateTime = null;
+    #[ORM\Column(type: 'datetime')]
+    #[Assert\NotNull(message: "La date de création est obligatoire.")]
+    #[Assert\DateTime(message: "La date doit être une date valide.")]
+    private ?\DateTimeInterface $createdAt = null;
+
+    // Getters / Setters
 
     public function getId(): ?int
     {
@@ -52,14 +80,14 @@ class Rating
         return $this;
     }
 
-    public function getDateTime(): ?string
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->dateTime;
+        return $this->createdAt;
     }
 
-    public function setDateTime(string $dateTime): static
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
-        $this->dateTime = $dateTime;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
