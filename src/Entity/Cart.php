@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\ApiProperty;
+
 
 #[ORM\Entity(repositoryClass: CartRepository::class)]
 #[ApiResource(
@@ -22,7 +24,7 @@ use ApiPlatform\Metadata\Delete;
         new Get(),
         new GetCollection(),
         new Post(),
-        new Put(),          
+                 new Put(),          
         new Patch(),         
         new Delete(),  
         
@@ -46,7 +48,8 @@ class Cart
     #[ORM\Column(type: 'datetime')]
     #[Assert\NotNull(message: "La date de création est obligatoire.")]
     #[Assert\DateTime(message: "La date de création doit être une date valide.")]
-    private ?\DateTimeInterface $createdAt = null;
+    #[ApiProperty(writable: false)] // 👈 Indique que le client ne peut pas envoyer ce champ
+    private ?\DateTimeInterface $createdAt = null;  
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     #[Assert\DateTime(message: "La date de validation doit être une date valide.")]
